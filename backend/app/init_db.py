@@ -12,6 +12,12 @@ cursor = connection.cursor()
 cursor.execute("""Insert Into members(member_id, name, email)
                VALUES
                (190492, 'John Moore', 'jmoore3@gmail.com'),
-               (180333, 'Bob Green', 'bgreen@yahoo.com')""")
+               (180333, 'Bob Green', 'bgreen@yahoo.com')
+               """)
+cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
+               VALUES
+               (1823467, 'The Outsider', 'Horror', 2018),
+               (2901231, 'Divergent', 'Action', 2011 )
+               """)
 connection.commit()
 connection.close()
