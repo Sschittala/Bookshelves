@@ -1,6 +1,4 @@
 
-
-
 export async function getUserById(userId: string) {
 	try {
 		const response = await fetch(`/api/member/${userId}`, {
