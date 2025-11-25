@@ -17,7 +17,17 @@ cursor.execute("""Insert Into members(member_id, name, email)
 cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES
                (1823467, 'The Outsider', 'Horror', 2018),
-               (2901231, 'Divergent', 'Action', 2011 )
+               (2901231, 'Divergent', 'Action', 2011)
+               """)
+cursor.execute("""Insert Into authors(author_id, author_name)
+               VALUES
+               (23, "Stephen King"),
+               (12, "Veronica Roth")
+               """)
+cursor.execute("""Insert Into book_authors(book_id, author_id)
+               VALUES
+               (1823467, 23),
+               (2901231, 12)
                """)
 connection.commit()
 connection.close()

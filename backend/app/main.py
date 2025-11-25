@@ -20,6 +20,7 @@ dbConn = get_db_connection() # Connection to the database
 def hello_world():
     return "<p>Hello, World!</p>", 200
 
+
 ''' Main method '''
 if __name__ == '__main__':
     app.run(debug=True)
