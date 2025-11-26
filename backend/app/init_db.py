@@ -29,5 +29,26 @@ cursor.execute("""Insert Into book_authors(book_id, author_id)
                (1823467, 23),
                (2901231, 12)
                """)
+cursor.execute("""Insert Into book_copies(copy_id, book_id, condition)
+               VALUES
+               (14232, 1823467, "Good"),
+               (21343, 2901231, "Bad"),
+               (34621, 1823467, "Excellent"),
+               (18291, 2901231, "Worst")    
+               """)
+cursor.execute("""Insert Into loans(loan_id, member_id, copy_id, due_date)
+               VALUES
+               (31, 190492, 14232, '2025-12-10'),
+               (12, 180333, 34621, '2026-01-18'),
+               (8, 190492, 18291, '2026-02-18'),
+               (45, 180333, 21343, '2025-12-10')    
+               """)
+cursor.execute("""Insert Into holds(hold_id, member_id, book_id)
+               VALUES
+               (17, 190492, 1823467),
+               (23, 180333, 2901231),
+               (10, 190492, 2901231),
+               (13, 180333, 1823467)    
+               """)
 connection.commit()
 connection.close()
