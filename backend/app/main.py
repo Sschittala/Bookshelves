@@ -82,11 +82,11 @@ def register_handler():
         if password == conf_password:
             success, err = register_user(dbConn, username, password)
             if success:
-                return "Success", 200 # TODO do we need to return something specific?
+                return jsonify({'success': True}), 200 # TODO do we need to return something specific?
             else:
-                return err, 403
+                return jsonify({'success': False}), 403
         else: # if passwords do not match
-            return # TODO do we need to return something at all?
+            return jsonify({'success': False}), 403
 
 # Logging in the user
 @app.route('/api/auth/login', methods=['GET'])
