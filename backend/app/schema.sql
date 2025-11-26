@@ -3,8 +3,16 @@ PRAGMA foreign_keys = ON;
 -- members
 CREATE TABLE members (
     member_id     INTEGER PRIMARY KEY,
-    name          TEXT,
+    name          TEXT, -- derived from e-mail string, e.g. "john.smith@hotmail.com" -> "john.smith"
     email         TEXT
+);
+
+-- accounts
+CREATE TABLE accounts (
+    member_id    INTEGER NOT NULL,
+    email        TEXT PRIMARY KEY, -- acts as login
+    password     TEXT,
+    FOREIGN KEY (member_id) REFERENCES members(member_id)
 );
 
 -- books

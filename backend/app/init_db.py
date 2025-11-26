@@ -14,6 +14,11 @@ cursor.execute("""Insert Into members(member_id, name, email)
                (190492, 'John Moore', 'jmoore3@gmail.com'),
                (180333, 'Bob Green', 'bgreen@yahoo.com')
                """)
+cursor.execute("""Insert Into accounts(member_id, email, password)
+               VALUES
+               (190492, 'jmoore3@gmail.com', '1234pass'),
+               (180333, 'bgreen@yahoo.com', 'zYgg&65')
+               """)
 cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES
                (1823467, 'The Outsider', 'Horror', 2018),
