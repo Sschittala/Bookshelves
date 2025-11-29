@@ -8,7 +8,7 @@ from random import randint
 def get_db_connection():
     conn = sqlite3.connect('database.db', check_same_thread=False)
     # This gives you name-bases access to columns in your database
-    conn.row_factory = sqlite3.Row
+    #conn.row_factory = sqlite3.Row
     return conn
 
 # Adds user to accounts and members tables
