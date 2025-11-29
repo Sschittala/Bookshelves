@@ -27,6 +27,7 @@ def register_user(dbConn, username, password):
         return (False, "Email is already present in accounts!")
     # No check for "members" table since it's presumed entrees are created together
     # Generating member id
+    # TODO see if any members have same id, and re-generate it if so
     id = randint(1, 999999)
     # Adding user to tables
     sql = """
@@ -61,7 +62,46 @@ def confirm_user(dbConn, username, password):
         return None
     
     return res[0]
-        
+
+# Returns holds from the given member
+# 
+# Just a list of books, pretty much
+def get_holds_for_mem(dbConn, member_id):
+    sql = """
+        SELECT *
+        FROM holds
+        WHERE member_id = ?
+    """
+    res = select_n_rows(dbConn, sql, (str(member_id),))
+    # res is a list of lists (or [] !!!), so we return it as-is
+    return res
+
+
+# Puts book on hold for a given member
+# 
+# Scans books for an available ones and sees if there are any to hold,
+# if there is none, returns an error.
+# If everything is good, returns hold id
+def hold_book_for_mem(dbConn, book_id, member_id):
+    sql = """
+        Insert Into holds(hold_id, member_id, book_id)
+        VALUES
+        (?, ?, ?)
+    """
+    hold_id = randint(0, 99) # TODO rewrite to guarantee we don;t hit existing id
+    perform_action(dbConn, sql, (str(hold_id), str(member_id), str(book_id)))
+
+# Removes hold for a given book copy
+# 
+# Basically just adds date for fulfilled hold
+def remove_hold(dbConn, hold_id):
+    sql = """
+        UPDATE holds
+        SET fulfilled_at = CURRENT_TIMESTAMP
+        WHERE hold_id = ?
+    """
+    perform_action(dbConn, sql, (str(hold_id)))
+
 ''' Initializing the app '''
 app = Flask(__name__)
 dbConn = get_db_connection() # Connection to the database
