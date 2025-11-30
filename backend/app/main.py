@@ -158,44 +158,41 @@ def login_handler():
 # Returning holds for a user
 @app.route('/api/holds/get_holds', methods=['GET'])
 def get_holds_handler():
-    if request.method == 'GET':
-        # getting holds
-        member_id = request.args['member_id']
-        hold_list = get_holds_for_mem(dbConn, member_id)
-        if not hold_list:
-            return
+    # getting holds
+    member_id = request.args['member_id']
+    hold_list = get_holds_for_mem(dbConn, member_id)
+    if not hold_list:
+        return
 
-        # preparing the return
-        return_list = [] # list for dictionaries to be JSON-ified
-        for hold in hold_list:
-            return_list.append({
-                "hold_id": hold[0],
-                "member_id": hold[1],
-                "book_id": hold[2],
-                "placed_at": hold[3],
-                "notified_at": hold[4],
-                "fulfilled_at": hold[5]
-            })
-        return jsonify(return_list), 200
+    # preparing the return
+    return_list = [] # list for dictionaries to be JSON-ified
+    for hold in hold_list:
+        return_list.append({
+            "hold_id": hold[0],
+            "member_id": hold[1],
+            "book_id": hold[2],
+            "placed_at": hold[3],
+            "notified_at": hold[4],
+            "fulfilled_at": hold[5]
+        })
+    return jsonify(return_list), 200
         
 # holding a book for a member
 @app.route('/api/holds/set_hold', methods=['POST'])
 def book_hold_handler():
-    if request.method == 'POST':
-        book_id = request.args['book_id']
-        member_id = request.args['member_id']
+    book_id = request.args['book_id']
+    member_id = request.args['member_id']
 
-        hold_book_for_mem(dbConn, book_id, member_id)
+    hold_book_for_mem(dbConn, book_id, member_id)
 
     return
 
 # Remove holds for a user
 @app.route('/api/holds/remove_hold', methods=['POST'])
 def remove_hold_handler():
-    if request.method == 'POST':
-        hold_id = request.args['hold_id']
+    hold_id = request.args['hold_id']
 
-        remove_hold(dbConn, hold_id)
+    remove_hold(dbConn, hold_id)
 
     return
 
