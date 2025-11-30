@@ -16,11 +16,12 @@ This document is documentation and instruction on how to launch the app.
 ### POST `/api/auth/register`
 
 Expected request:
+
 ```json
 {
-    'username': 'example@email.com', // Notice that the username is the email for now, can be changed later
-    'password': 'pass123',
-    'confirm password': 'pass123'
+    "username": "example@email.com", // Notice that the username is the email for now, can be changed later
+    "password": "pass123",
+    "confirm password": "pass123"
 }
 ```
 
@@ -29,7 +30,7 @@ Responses:
 
     ```json
     {
-        'success': true
+        "success": true
     }
     ```
 
@@ -39,7 +40,7 @@ Responses:
 
     ```json
     {
-        'success': false
+        "success": false
     }
     ```
 
@@ -51,8 +52,8 @@ Expected request:
 
 ```json
 {
-    'username': "example@email.com", // Notice that the username is the email for now, can be changed later
-    'password': "pass123",
+    "username": "example@email.com", // Notice that the username is the email for now, can be changed later
+    "password": "pass123",
 }
 ```
 
@@ -62,7 +63,7 @@ Responses:
 
     ```json
     {
-        'member_id': 168588
+        "member_id": 168588
     }
     ```
 
@@ -72,8 +73,76 @@ Responses:
 
     ```json
     {
-        'member_id': null
+        "member_id": null
     }
     ```
 
     Response code: **403**
+
+## Hold and releasing holds
+
+### GET `/api/holds/get_holds`
+
+Expected request:
+```json
+{
+    "member_id": "4876157"
+}
+```
+
+Responses:
+- If the member id exists, returns list of current and past holds
+
+    ```json
+    [
+        {
+            "hold_id": 12,
+            "member_id": 1234567,
+            "book_id": 137574,
+            "placed_at": "2025-11-12 04:19:00",
+            "notified_at": null,
+            "fulfilled_at": "2025-11-20 00:19:00"
+        },
+        ...
+
+    ]
+    ```
+
+    Response code: **200**
+
+- If the member id *does not* exists, or there is no current holds, returns empty :
+
+    ```json
+    []
+    ```
+
+    Response code: **200**
+
+### POST `/api/holds/set_hold`
+
+Expected request:
+
+```json
+{
+    "book_id": 123456,
+    "member_id": 123547
+}
+```
+
+Responses:
+
+No response.
+
+### POST `/api/holds/remove_hold`
+
+Expected request:
+
+```json
+{
+    "hold_id": 99
+}
+```
+
+Responses:
+
+No response, if there were a hold with that ID, current data-time is being set in the "fulfilled" field. Nothing happens if ID doesn't exist.
