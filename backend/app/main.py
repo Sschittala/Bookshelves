@@ -161,7 +161,7 @@ def get_holds_handler():
         return jsonify(return_list), 200
         
 # holding a book for a member
-@app.route('/api/holds/get_holds', methods=['POST'])
+@app.route('/api/holds/set_hold', methods=['POST'])
 def book_hold_handler():
     if request.method == 'POST':
         book_id = request.args['book_id']
