@@ -109,6 +109,59 @@ def remove_hold(dbConn, hold_id):
     """
     perform_action(dbConn, sql, (str(hold_id),))
 
+# --- Book Management Database Methods ---
+
+# Returns a list of all books
+def get_all_books(dbConn):
+    sql = """
+        SELECT book_id, title, genre, publication_year
+        FROM books
+        ORDER BY title
+    """
+    res = select_n_rows(dbConn, sql)
+
+    books_list = []
+    # Map the results (list of tuples) to a list of dictionaries for JSON
+    for row in res:
+        books_list.append({
+            "id": row[0],  # Using 'id' for frontend consistency
+            "title": row[1],
+            "genre": row[2],
+            "publication_year": row[3]
+        })
+    return books_list
+
+# Adds a new book
+def create_book(dbConn, title, genre, author, publication_year):
+    sql = """
+        INSERT INTO books (title, genre, publication_year)
+        VALUES (?, ?, ?)
+    """
+    perform_action(dbConn, sql, parameters=(title, genre, author, publication_year))
+    dbConn.commit()
+    return True
+
+# Updates an existing book
+def update_book(dbConn, book_id, title, genre, author, publication_year):
+    sql = """
+        UPDATE books
+        SET title=?, genre=?, publication_year=?
+        WHERE book_id=?
+    """
+    # Note the order of parameters must match the SQL statement placeholders
+    perform_action(dbConn, sql, parameters=(title, genre, author, publication_year, book_id))
+    dbConn.commit()
+    return True
+
+# Deletes a book
+def delete_book(dbConn, book_id):
+    sql = """
+        DELETE FROM books
+        WHERE book_id=?
+    """
+    perform_action(dbConn, sql, parameters=(book_id,))
+    dbConn.commit()
+    return True
 ''' Initializing the app '''
 app = Flask(__name__)
 dbConn = get_db_connection() # Connection to the database
@@ -228,6 +281,70 @@ def remove_hold_handler():
 
     return
 
+# CRUD for books
+# --- Book Management Routes (CRUD) ---
+
+@app.route('/api/books', methods=['GET'])
+def books_get_all_handler():
+    """Read: Fetch all books."""
+    try:
+        books = get_all_books(dbConn)
+        # Check if books list is None (error from datatier)
+        if books is None:
+            return jsonify({"error": "Database error while fetching books."}), 500
+        return jsonify(books), 200
+    except Exception as e:
+        print(f"Error fetching books: {e}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
+
+@app.route('/api/books', methods=['POST'])
+def books_create_handler():
+    """Create: Add a new book."""
+    data = request.get_json() or {}
+    required_fields = ['title', 'genre', 'publication_year']
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required book data fields."}), 400
+    
+    try:
+        # Convert publication_year to integer if necessary
+        pub_year = int(data['publication_year'])
+        create_book(dbConn, data['title'], data['genre'], pub_year)
+        return jsonify({"success": True}), 201
+    except ValueError:
+        return jsonify({"error": "Publication year must be a valid number."}), 400
+    except Exception as e:
+        print(f"Error creating book: {e}")
+        return jsonify({"error": "Failed to create book."}), 500
+
+@app.route('/api/books/<int:book_id>', methods=['PUT'])
+def books_update_handler(book_id):
+    """Update: Modify an existing book by ID."""
+    data = request.get_json() or {}
+    required_fields = ['title', 'genre', 'publication_year']
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required book data fields."}), 400
+    
+    try:
+        pub_year = int(data['publication_year'])
+        update_book(dbConn, book_id, data['title'], data['genre'], pub_year)
+        return jsonify({"success": True}), 200
+    except ValueError:
+        return jsonify({"error": "Publication year must be a valid number."}), 400
+    except Exception as e:
+        print(f"Error updating book ID {book_id}: {e}")
+        return jsonify({"error": "Failed to update book."}), 500
+
+@app.route('/api/books/<int:book_id>', methods=['DELETE'])
+def books_delete_handler(book_id):
+    """Delete: Remove a book by ID."""
+    try:
+        delete_book(dbConn, book_id)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        print(f"Error deleting book ID {book_id}: {e}")
+        return jsonify({"error": "Failed to delete book."}), 500
 ''' Main method '''
 if __name__ == '__main__':
     app.run(debug=True)
