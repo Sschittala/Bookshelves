@@ -23,12 +23,18 @@ def register_user(dbConn, username, password):
         WHERE email = ?
         """
     res = select_one_row(dbConn, sql, parameters=(username,))
+
+    if not res:
+        return (False, 'Could not fetch data')
+
     if res[0] != 0: # email is unavailable in accounts
         return (False, "Email is already present in accounts!")
     # No check for "members" table since it's presumed entrees are created together
     # Generating member id
+
     # TODO see if any members have same id, and re-generate it if so
     id = randint(1, 999999)
+
     # Adding user to tables
     sql = """
         Insert Into accounts(member_id, email, password)
@@ -44,6 +50,8 @@ def register_user(dbConn, username, password):
         """
     perform_action(dbConn, sql, parameters=(int(id), str(name), str(username)))
 
+    dbConn.commit() # have to make sure we commit otherwise db doenst change
+
     return (True, "")
     
 
@@ -57,10 +65,8 @@ def confirm_user(dbConn, username, password):
         WHERE email = ? AND password = ?
         """
     res = select_one_row(dbConn, sql, parameters=(username, password))
-    
-    if len(res) == 0:
+    if not res:
         return None
-    
     return res[0]
 
 # Returns holds from the given member
@@ -115,30 +121,39 @@ dbConn = get_db_connection() # Connection to the database
 # Registering a user
 @app.route('/api/auth/register', methods=['POST'])
 def register_handler():
-    if request.method == 'POST':
-        username = request.args['username'] # Attention! we are presuming the username is an e-mail in format "username@example.com"!
-        password = request.args['password']
-        conf_password = request.args['confirm password']
-        if password == conf_password:
-            success, err = register_user(dbConn, username, password)
-            if success:
-                return jsonify({'success': True}), 200 # TODO do we need to return something specific?
-            else:
-                return jsonify({'success': False}), 403
-        else: # if passwords do not match
+    """
+    We should not be getting the request from the URL.
+    username = request.args['username'] # Attention! we are presuming the username is an e-mail in format "username@example.com"!
+    password = request.args['password']
+    """
+    data = request.get_json() or {} # Gets the json data from the body
+    username = data['username']
+    password = data['password']
+    conf_password = data['confirm password']
+
+    if password == conf_password:
+        success, err = register_user(dbConn, username, password)
+        if success:
+            return jsonify({'success': True}), 200 # TODO do we need to return something specific?
+        else:
             return jsonify({'success': False}), 403
+    else: # if passwords do not match
+        return jsonify({'success': False}), 403
 
 # Logging in the user
-@app.route('/api/auth/login', methods=['GET'])
+@app.route('/api/auth/login', methods=['POST'])
 def login_handler():
-    if request.method == 'GET':
-        username = request.args['username']
-        password = request.args['password']
+    data = request.get_json() or {} # Gets the json data from the body
+    username = data.get('username')
+    password = data.get('password')
 
-        member_id = confirm_user(dbConn, username, password)
-        if member_id == None:
-            return jsonify({"member_id": None}), 403
-        return jsonify({"member_id": member_id}), 200
+    if not username or not password:
+        return jsonify({"error": "username and password required"}), 400
+
+    member_id = confirm_user(dbConn, username, password)
+    if member_id == None:
+        return jsonify({"member_id": None}), 403
+    return jsonify({"member_id": member_id}), 200
 
 # Returning holds for a user
 @app.route('/api/holds/get_holds', methods=['GET'])
@@ -147,6 +162,9 @@ def get_holds_handler():
         # getting holds
         member_id = request.args['member_id']
         hold_list = get_holds_for_mem(dbConn, member_id)
+        if not hold_list:
+            return
+
         # preparing the return
         return_list = [] # list for dictionaries to be JSON-ified
         for hold in hold_list:
