@@ -22,7 +22,7 @@ def register_user(dbConn, username, password):
         FROM accounts
         WHERE email = ?
         """
-    res = select_one_row(dbConn, sql, parameters=(username))
+    res = select_one_row(dbConn, sql, parameters=(username,))
     if res[0] != 0: # email is unavailable in accounts
         return (False, "Email is already present in accounts!")
     # No check for "members" table since it's presumed entrees are created together
@@ -100,7 +100,7 @@ def remove_hold(dbConn, hold_id):
         SET fulfilled_at = CURRENT_TIMESTAMP
         WHERE hold_id = ?
     """
-    perform_action(dbConn, sql, (str(hold_id)))
+    perform_action(dbConn, sql, (str(hold_id),))
 
 ''' Initializing the app '''
 app = Flask(__name__)
@@ -139,6 +139,47 @@ def login_handler():
         if member_id == None:
             return jsonify({"member_id": None}), 403
         return jsonify({"member_id": member_id}), 200
+
+# Returning holds for a user
+@app.route('/api/holds/get_holds', methods=['GET'])
+def get_holds_handler():
+    if request.method == 'GET':
+        # getting holds
+        member_id = request.args['member_id']
+        hold_list = get_holds_for_mem(dbConn, member_id)
+        # preparing the return
+        return_list = [] # list for dictionaries to be JSON-ified
+        for hold in hold_list:
+            return_list.append({
+                "hold_id": hold[0],
+                "member_id": hold[1],
+                "book_id": hold[2],
+                "placed_at": hold[3],
+                "notified_at": hold[4],
+                "fulfilled_at": hold[5]
+            })
+        return jsonify(return_list), 200
+        
+# holding a book for a member
+@app.route('/api/holds/get_holds', methods=['POST'])
+def book_hold_handler():
+    if request.method == 'POST':
+        book_id = request.args['book_id']
+        member_id = request.args['member_id']
+
+        hold_book_for_mem(dbConn, book_id, member_id)
+
+    return
+
+# Remove holds for a user
+@app.route('/api/holds/remove_hold', methods=['POST'])
+def remove_hold_handler():
+    if request.method == 'POST':
+        hold_id = request.args['hold_id']
+
+        remove_hold(dbConn, hold_id)
+
+    return
 
 ''' Main method '''
 if __name__ == '__main__':
