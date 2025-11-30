@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from datatier import *
 from random import randint
+import os
 
 ''' Database methods '''
 
@@ -112,6 +113,9 @@ def remove_hold(dbConn, hold_id):
 app = Flask(__name__)
 dbConn = get_db_connection() # Connection to the database
 
+
+
+
 ''' Request handlers '''
 # Example request and response
 # @app.route("/")
@@ -119,6 +123,10 @@ dbConn = get_db_connection() # Connection to the database
 #     return "<p>Hello, World!</p>", 200
 
 # Registering a user
+
+
+app.secret_key = os.urandom(32).hex()
+
 @app.route('/api/auth/register', methods=['POST'])
 def register_handler():
     """
@@ -127,9 +135,12 @@ def register_handler():
     password = request.args['password']
     """
     data = request.get_json() or {} # Gets the json data from the body
-    username = data['username']
-    password = data['password']
-    conf_password = data['confirm password']
+    username = data.get('username')
+    password = data.get('password')
+    conf_password = data.get('confirm password')
+
+    if not username or not password or not conf_password:
+        return jsonify({'success': False}), 400
 
     if password == conf_password:
         success, err = register_user(dbConn, username, password)
@@ -151,9 +162,30 @@ def login_handler():
         return jsonify({"error": "username and password required"}), 400
 
     member_id = confirm_user(dbConn, username, password)
+
     if member_id == None:
         return jsonify({"member_id": None}), 403
+
+    session.permanent = True
+    session['username'] = username
+    session['member_id'] = member_id
+
     return jsonify({"member_id": member_id}), 200
+
+@app.route('/api/auth/logout', methods=['POST']) # logout = clear cookie
+def logout_handler():
+    session.clear()
+    return jsonify({"ok": True}), 200
+
+@app.route('/api/auth/me', methods=['GET'])
+def me_handler():
+    if 'member_id' not in session:
+        return jsonify({"authenticated": False}), 200
+    return jsonify({
+        "authenticated": True, 
+        "username": session.get('username'),
+        "member_id": session['member_id']
+    }), 200
 
 # Returning holds for a user
 @app.route('/api/holds/get_holds', methods=['GET'])
