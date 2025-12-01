@@ -13,48 +13,24 @@ import {
 import { Card, CardContent, CardFooter } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-
-type Book = {
-  book_id: number;
-  title: string;
-  genre: string;
-  publication_year: number;
-  author_name: string;
-};
+import { Book, getBooks } from "@/data/book-data";
 
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get("q") || "";
 
   useEffect(() => {
-    async function fetchBooks() {
-      setLoading(true);
-      try {
-        const url = searchQuery
-          ? `/api/books/search?q=${encodeURIComponent(searchQuery)}`
-          : `/api/books/search`;
+    async function fetchAllBooks() {
+      const books: Book[] = await getBooks();
 
-        const response = await fetch(url);
+      console.log(books)
+      setBooks(books);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setBooks(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-        setBooks([]);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     }
+    fetchAllBooks();
+  }, [])
 
-    fetchBooks();
-  }, [searchQuery]);
 
   const getBooksByGenre = (books: Book[]) => {
     return books.reduce((acc, book) => {

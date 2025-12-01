@@ -147,6 +147,33 @@ def get_all_books(dbConn):
         })
     return books_list
 
+
+def get_book(dbConn, book_id):
+    sql = """
+        SELECT b.book_id, b.title, b.genre, b.publication_year,
+               a.author_id, a.author_name AS author_name
+        FROM books b
+        LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+        LEFT JOIN authors a ON ba.author_id = a.author_id
+        WHERE b.book_id = ?
+        ORDER BY b.title
+    """
+    res = select_n_rows(dbConn, sql, (book_id,))
+    books_list = []
+    if not res:
+        return []
+    for row in res:
+        books_list.append({
+            "book_id": row[0],
+            "title": row[1],
+            "genre": row[2],
+            "publication_year": row[3],
+            "author_id": row[4],
+            "author_name": row[5]
+        })
+    return books_list
+
+
 # Create book and its mapping to an author (author_id)
 def create_book(dbConn, title, genre, author_id, publication_year):
     # Insert into books and obtain the new book_id
@@ -361,13 +388,21 @@ def remove_hold_handler():
 
 # --- Book Management Routes (CRUD) ---
 
-@app.route('/api/books', methods=['GET'])
+@app.route('/api/books', methods=['POST'])
 def books_get_all_handler():
     """Read: Fetch all books with author info."""
     try:
-        books = get_all_books(dbConn)
-        if books is None:
-            return jsonify({"error": "Database error while fetching books."}), 500
+        data = request.get_json() or {}
+        if 'book_id' not in data:
+            books = get_all_books(dbConn)
+            if books is None:
+                return jsonify({"error": "Database error while fetching books."}), 500
+        else:
+            book_id = data.get('book_id')
+            books = get_book(dbConn, book_id)
+            if books is None:
+                return jsonify({"error": "Database error while fetching book."}), 500
+
         return jsonify(books), 200
     except Exception as e:
         print(f"Error fetching books: {e}")
