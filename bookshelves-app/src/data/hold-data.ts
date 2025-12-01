@@ -1,6 +1,6 @@
 import { handleResponse } from "./utils";
 
-interface Hold {
+export interface Hold {
 	hold_id: number;
 	member_id: number;
 	book_id: number;
@@ -10,10 +10,9 @@ interface Hold {
 }
 
 export async function getHolds(memberId: number): Promise<Hold[]> {
-	const response = await fetch('/api/holds/get_holds', {
-		method: 'POST',
+	const response = await fetch(`/api/holds/get_holds?member_id=${memberId}`, {
+		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ member_id: memberId }),
 	});
 	return handleResponse<Hold[]>(response);
 }

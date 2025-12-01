@@ -28,7 +28,7 @@ export default function AddBookForm() {
   const genres = [
     'Fiction', 'Non-Fiction', 'Mystery', 'Science Fiction', 'Fantasy',
     'Romance', 'Thriller', 'Biography', 'History', 'Self-Help',
-    'Poetry', 'Children', 'Young Adult', 'Horror', 'Adventure'
+    'Poetry', 'Children', 'Young Adult', 'Horror', 'Adventure', 'Action'
   ];
 
   const conditions = ['new', 'good', 'fair', 'poor'];

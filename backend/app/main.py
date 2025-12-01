@@ -350,8 +350,7 @@ def me_handler():
 # Returning holds for a user
 @app.route('/api/holds/get_holds', methods=['GET'])
 def get_holds_handler():
-    data = request.get_json() or {}
-    member_id = data.get('member_id')
+    member_id = request.args.get('member_id')
 
     if not member_id:
         return jsonify({"error": "member_id required"}), 400
