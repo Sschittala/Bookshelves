@@ -102,6 +102,8 @@ def search_books(dbConn, search_term):
     search_term2 = f"%{search_term}%"
     res = select_n_rows(dbConn, sql, (search_term2, search_term2, search_term2))
     books_list = []
+    if not res:
+        return
     for row in res:
         books_list.append({
             "book_id": row[0],
@@ -131,6 +133,8 @@ def get_all_books(dbConn):
     """
     res = select_n_rows(dbConn, sql)
     books_list = []
+    if not res:
+        return
     for row in res:
         # row is a tuple in same order as SELECT
         books_list.append({
@@ -197,15 +201,16 @@ def delete_book(dbConn, book_id):
     dbConn.commit()
     return True
 
-# Adds a loan once a user rents a book
 def add_loans(dbConn, member_id, copy_id):
     sql = """
         INSERT INTO loans(member_id, copy_id)
         VALUES (?, ?)
     """
-    perform_action(dbConn, sql, (member_id, copy_id))
+    cursor = dbConn.cursor()
+    cursor.execute(sql, (member_id, copy_id))
     dbConn.commit()
-    return loan_id
+    
+    return cursor.lastrowid
 
 # Removes a loan once a user returns a book
 def remove_loans(dbConn, loan_id):
@@ -235,6 +240,8 @@ def get_all_authors(dbConn):
     """
     res = select_n_rows(dbConn, sql)
     authors_list = []
+    if not res:
+        return
     for row in res:
         authors_list.append({
             "author_id": row[0],
@@ -307,7 +314,9 @@ def me_handler():
 # Returning holds for a user
 @app.route('/api/holds/get_holds', methods=['GET'])
 def get_holds_handler():
-    member_id = request.args.get('member_id')
+    data = request.get_json() or {}
+    member_id = data.get('member_id')
+
     if not member_id:
         return jsonify({"error": "member_id required"}), 400
 
@@ -330,8 +339,9 @@ def get_holds_handler():
 # holding a book for a member
 @app.route('/api/holds/set_hold', methods=['POST'])
 def book_hold_handler():
-    book_id = request.args.get('book_id')
-    member_id = request.args.get('member_id')
+    data = request.get_json() or {}
+    book_id = data.get('book_id')
+    member_id = data.get('member_id')
     if not book_id or not member_id:
         return jsonify({"error": "book_id and member_id required"}), 400
 
@@ -341,7 +351,8 @@ def book_hold_handler():
 # Remove holds for a user
 @app.route('/api/holds/remove_hold', methods=['POST'])
 def remove_hold_handler():
-    hold_id = request.args.get('hold_id')
+    data = request.get_json() or {}
+    hold_id = data.get('hold_id')
     if not hold_id:
         return jsonify({"error": "hold_id required"}), 400
 
@@ -416,6 +427,10 @@ def books_delete_handler(book_id):
 def authors_get_all_handler():
     sql = "SELECT author_id, author_name FROM authors ORDER BY name"
     res = select_n_rows(dbConn, sql)
+
+    if not res:
+        return jsonify([]), 500
+
     authors_list = [{"author_id": row[0], "name": row[1]} for row in res]
     return jsonify(authors_list), 200
 
@@ -435,8 +450,9 @@ def books_search_handler():
 
 @app.route("/api/loans/add_loan", methods=['POST'])
 def add_loan_handler():
-    member_id = request.args.get(member_id)
-    copy_id = request.args.get(copy_id)
+    data = request.get_json() or {}
+    member_id = data.get('member_id')
+    copy_id = data.get('copy_id')
     if not member_id or not copy_id:
         return jsonify({"error": "member_id and copy_id required"}), 400
     loan_id = add_loans(dbConn, member_id, copy_id)
@@ -444,7 +460,8 @@ def add_loan_handler():
 
 @app.route("/api/loans/remove_loan", methods=['POST'])
 def remove_loan_handler():
-    loan_id = request.args.get(loan_id)
+    data = request.get_json() or {}
+    loan_id = data.get('loan_id')
     if not loan_id:
         return jsonify({"error": "loan_id required"}), 400
     remove_loans(dbConn, loan_id)
@@ -452,7 +469,8 @@ def remove_loan_handler():
 
 @app.route("/api/loans/get_loans", methods=['GET'])
 def get_loans_handler():
-    member_id = request.args.get('member_id')
+    data = request.get_json() or {}
+    member_id = data.get('member_id')
     if not member_id:
         return jsonify({"error": "member_id required"}), 400
     loans = get_loans_for_mem(dbConn, member_id)
