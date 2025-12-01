@@ -90,6 +90,29 @@ def remove_hold(dbConn, hold_id):
     perform_action(dbConn, sql, (str(hold_id),))
     dbConn.commit()
 
+def search_books(dbConn, search_term):
+    sql = """
+        SELECT b.book_id, b.title, b.genre, b.publication_year,
+               a.author_id, a.author_name AS author_name
+        FROM books b
+        LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+        LEFT JOIN authors a ON ba.author_id = a.author_id
+        WHERE b.title LIKE ? OR b.genre LIKE ? OR a.author_name LIKE ?
+    """
+    search_term2 = f"%{search_term}%"
+    res = select_n_rows(dbConn, sql, (search_term2, search_term2, search_term2))
+    books_list = []
+    for row in res:
+        books_list.append({
+            "book_id": row[0],
+            "title": row[1],
+            "genre": row[2],
+            "publication_year": row[3],
+            "author_id": row[4],
+            "author_name": row[5]
+        })
+    return books_list
+
 # --- Book Management Database Methods ---
 # NOTE: these functions use the normalized schema:
 #   books(book_id, title, genre, publication_year)
@@ -366,6 +389,20 @@ def authors_get_all_handler():
     res = select_n_rows(dbConn, sql)
     authors_list = [{"author_id": row[0], "name": row[1]} for row in res]
     return jsonify(authors_list), 200
+
+@app.route('/api/books/search', methods=['GET'])
+def books_search_handler():
+    search_term = request.args.get('q')
+    if not search_term:
+        books = get_all_books(dbConn)
+        if books is None:
+            return jsonify({"error": "Database error while fetching books."}), 500
+        return jsonify(books), 200
+    else:
+        books = search_books(dbConn, search_term)
+        if books is None:
+            return jsonify({"error": "Database error while searching books."}), 500
+        return jsonify(books), 200
 
 ''' Main method '''
 if __name__ == '__main__':
