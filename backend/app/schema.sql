@@ -49,7 +49,7 @@ CREATE TABLE book_copies (
 
 -- loans
 CREATE TABLE loans (
-    loan_id    INTEGER PRIMARY KEY,
+    loan_id    INTEGER PRIMARY KEY AUTOINCREMENT,
     member_id  INTEGER NOT NULL,
     copy_id    INTEGER NOT NULL,
     due_date   TIMESTAMP NOT NULL,
