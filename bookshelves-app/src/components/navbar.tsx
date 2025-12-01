@@ -29,10 +29,6 @@ export function Navbar() {
 
 			{/* Actions */}
 			<div className="flex items-center gap-2">
-				<Button variant="ghost" size="sm" className="hidden sm:flex text-zinc-400 hover:text-white">
-					Genres
-				</Button>
-				<div className="h-4 w-px bg-zinc-800 hidden sm:block mx-2"></div>
 
 				{session?.authenticated ? (
 					<>

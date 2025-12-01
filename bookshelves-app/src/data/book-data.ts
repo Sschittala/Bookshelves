@@ -13,7 +13,8 @@ export interface BookPayload {
 	title: string;
 	genre: string;
 	publication_year: number;
-	author_id: number;
+	authors: string[];
+	copies: [{ condition: string }];
 }
 
 export async function getBook(book_id: string): Promise<Book> {
@@ -39,6 +40,7 @@ export async function createBook(book: BookPayload): Promise<{ success: boolean;
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(book),
 	});
+
 	return handleResponse<{ success: boolean; book_id: number }>(response);
 }
 

@@ -2,12 +2,21 @@
 
 import React, { useState } from 'react';
 import { BookOpen, Plus, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { BookPayload, createBook } from '@/data/book-data';
+
+interface FormData {
+  title: string;
+  genre: string;
+  publication_year: string | number;
+  authors: string[];
+  copies: { condition: string }[];
+}
 
 export default function AddBookForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     genre: '',
-    publicationYear: '',
+    publication_year: '',
     authors: [''],
     copies: [{ condition: 'new' }]
   });
@@ -77,13 +86,15 @@ export default function AddBookForm() {
       newErrors.genre = 'Genre is required';
     }
 
-    if (!formData.publicationYear) {
-      newErrors.publicationYear = 'Publication year is required';
+    if (!formData.publication_year) {
+      newErrors.publication_year = 'Publication year is required';
     } else {
-      const year = parseInt(formData.publicationYear);
+      const year = typeof formData.publication_year === 'string'
+        ? parseInt(formData.publication_year)
+        : formData.publication_year;
       const currentYear = new Date().getFullYear();
       if (year < 1000 || year > currentYear + 1) {
-        newErrors.publicationYear = `Year must be between 1000 and ${currentYear + 1}`;
+        newErrors.publication_year = `Year must be between 1000 and ${currentYear + 1}`;
       }
     }
 
@@ -108,28 +119,17 @@ export default function AddBookForm() {
     try {
       const validAuthors = formData.authors.filter(author => author.trim());
 
-      const bookData = {
+      const bookData: BookPayload = {
         title: formData.title.trim(),
         genre: formData.genre,
-        publication_year: parseInt(formData.publicationYear),
+        publication_year: typeof formData.publication_year === 'string'
+          ? parseInt(formData.publication_year)
+          : formData.publication_year,
         authors: validAuthors,
-        copies: formData.copies
+        copies: [formData.copies[0]]
       };
 
-      // Flask backend is running on port 5000
-      const response = await fetch('http://127.0.0.1:5000/api/books', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add book');
-      }
-
-      const result = await response.json();
+      await createBook(bookData);
 
       setSubmitStatus({
         type: 'success',
@@ -139,7 +139,7 @@ export default function AddBookForm() {
       setFormData({
         title: '',
         genre: '',
-        publicationYear: '',
+        publication_year: '',
         authors: [''],
         copies: [{ condition: 'new' }]
       });
@@ -227,23 +227,23 @@ export default function AddBookForm() {
               </div>
 
               <div>
-                <label htmlFor="publicationYear" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="publication_year" className="block text-sm font-medium text-gray-700 mb-2">
                   Publication Year *
                 </label>
                 <input
                   type="number"
-                  id="publicationYear"
-                  name="publicationYear"
-                  value={formData.publicationYear}
+                  id="publication_year"
+                  name="publication_year"
+                  value={formData.publication_year}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.publicationYear ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.publication_year ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="2024"
                   min="1000"
                   max={new Date().getFullYear() + 1}
                 />
-                {errors.publicationYear && (
-                  <p className="mt-1 text-sm text-red-600">{errors.publicationYear}</p>
+                {errors.publication_year && (
+                  <p className="mt-1 text-sm text-red-600">{errors.publication_year}</p>
                 )}
               </div>
             </div>

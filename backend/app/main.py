@@ -174,23 +174,32 @@ def get_book(dbConn, book_id):
     }
 
 
-# Create book and its mapping to an author (author_id)
-def create_book(dbConn, title, genre, author_id, publication_year):
-    # Insert into books and obtain the new book_id
-    cursor = dbConn.cursor()
-    cursor.execute(
-        "INSERT INTO books (title, genre, publication_year) VALUES (?, ?, ?)",
-        (title, genre, publication_year),
-    )
-    book_id = cursor.lastrowid
-
-    # Insert into mapping table (book_authors)
-    cursor.execute(
-        "INSERT INTO book_authors (book_id, author_id) VALUES (?, ?)",
-        (book_id, author_id),
-    )
-    dbConn.commit()
-    return book_id
+def create_book(dbConn, title, genre, publication_year, authors, copies):
+        cursor = dbConn.cursor()
+        cursor.execute(
+            "INSERT INTO books (title, genre, publication_year) VALUES (?, ?, ?)",
+            (title, genre, publication_year),
+        )
+        book_id = cursor.lastrowid
+        for author_name in authors:
+            cursor.execute("SELECT author_id FROM authors WHERE author_name = ?", (author_name,))
+            result = cursor.fetchone()
+            if result:
+                    author_id = result[0]
+            else:
+                cursor.execute("INSERT INTO authors (author_name) VALUES (?)", (author_name,))
+                author_id = cursor.lastrowid
+                cursor.execute(
+                    "INSERT INTO book_authors (book_id, author_id) VALUES (?, ?)",
+                    (book_id, author_id),
+                )
+            for copy in copies:
+                cursor.execute(
+                            "INSERT INTO book_copies (book_id, condition) VALUES (?, ?)",
+                            (book_id, copy['condition']),
+                        )
+            dbConn.commit()
+            return book_id
 
 # Update book and its mapping to author
 def update_book(dbConn, book_id, title, genre, author_id, publication_year):
@@ -410,20 +419,30 @@ def books_get_all_handler():
 
 @app.route('/api/books', methods=['POST'])
 def books_create_handler():
-    """Create: Add a new book. Expects JSON: title, genre, publication_year, author_id"""
     data = request.get_json() or {}
-    required_fields = ['title', 'genre', 'publication_year', 'author_id']
-
+    required_fields = ['title', 'genre', 'publication_year', 'authors', 'copies']
     if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required book data fields."}), 400
-
+            return jsonify({"error": "Missing required book data fields."}), 400
+    
+    if not isinstance(data['authors'], list) or len(data['authors']) == 0:
+            return jsonify({"error": "Authors must be a non-empty array."}), 400
+    
+    if not isinstance(data['copies'], list) or len(data['copies']) == 0:
+            return jsonify({"error": "Copies must be a non-empty array."}), 400
+    
     try:
         pub_year = int(data['publication_year'])
-        author_id = int(data['author_id'])
-        book_id = create_book(dbConn, data['title'], data['genre'], author_id, pub_year)
+        book_id = create_book(
+            dbConn, 
+                data['title'], 
+                data['genre'], 
+                pub_year,
+                data['authors'],
+                data['copies']
+                )
         return jsonify({"success": True, "book_id": book_id}), 201
     except ValueError:
-        return jsonify({"error": "Publication year and author_id must be valid numbers."}), 400
+        return jsonify({"error": "Publication year must be a valid number."}), 400
     except Exception as e:
         print(f"Error creating book: {e}")
         return jsonify({"error": "Failed to create book."}), 500
