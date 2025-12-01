@@ -1,5 +1,20 @@
 import { handleResponse } from "@/data/utils"
 
+export interface Copy {
+	copy_id: number,
+	condition: string,
+	loan: Loan
+}
+
+export interface Loan {
+	loan_id: number,
+	member_id: number,
+	due_date: Date,
+	start_date: Date,
+	end_date: Date,
+	returned_at: Date
+}
+
 export interface Book {
 	book_id: number;
 	title: string;
@@ -7,6 +22,7 @@ export interface Book {
 	publication_year: number;
 	author_id: number;
 	author_name?: string;
+	copies: Copy[]
 }
 
 export interface BookPayload {
