@@ -266,13 +266,13 @@ def delete_book(dbConn, book_id):
 
 def add_loans(dbConn, member_id, copy_id):
     sql = """
-        INSERT INTO loans(member_id, copy_id)
-        VALUES (?, ?)
+    INSERT INTO loans (member_id, copy_id, due_date, start_date)
+    VALUES (?, ?, datetime('now', '+14 days'), datetime('now'))
     """
     cursor = dbConn.cursor()
     cursor.execute(sql, (member_id, copy_id))
     dbConn.commit()
-    
+
     return cursor.lastrowid
 
 # Removes a loan once a user returns a book
@@ -284,15 +284,41 @@ def remove_loans(dbConn, loan_id):
     dbConn.commit()
     return loan_id
 
-# Returns list of loans for a given member
 def get_loans_for_mem(dbConn, member_id):
     sql = """
-        SELECT *
-        FROM loans
-        WHERE member_id = ?
+        SELECT 
+        l.loan_id, l.member_id, l.copy_id, l.due_date, l.start_date, l.end_date, l.returned_at,
+        b.title,
+        a.author_name
+        FROM loans l
+        JOIN book_copies bc ON l.copy_id = bc.copy_id
+        JOIN books b ON bc.book_id = b.book_id
+        LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+        LEFT JOIN authors a ON ba.author_id = a.author_id
+        WHERE l.member_id = ?
+        ORDER BY l.due_date ASC
     """
+
     res = select_n_rows(dbConn, sql, (member_id,))
-    return res
+    if not res:
+            return []
+
+    loan_list = []
+
+    for row in res:
+        loan_list.append({
+             "loan_id": row[0],
+             "member_id": row[1],
+             "copy_id": row[2],
+             "due_date": row[3],
+             "start_date": row[4],
+             "end_date": row[5],
+             "returned_at": row[6],
+             "title": row[7],
+             "author": row[8] or "Unknown"
+         })
+
+    return loan_list
 
 # Returns list of authors
 def get_all_authors(dbConn):
@@ -549,12 +575,22 @@ def remove_loan_handler():
 
 @app.route("/api/loans/get_loans", methods=['GET'])
 def get_loans_handler():
-    data = request.get_json() or {}
-    member_id = data.get('member_id')
-    if not member_id:
-        return jsonify({"error": "member_id required"}), 400
-    loans = get_loans_for_mem(dbConn, member_id)
-    return jsonify(loans), 200
+    try:
+        member_id = request.args.get('member_id')
+        if not member_id:
+                return jsonify({"error": "member_id required"}), 400
+
+        loans = get_loans_for_mem(dbConn, member_id)        
+
+        print(loans)
+        if loans is None:
+                return jsonify([]), 200
+
+        return jsonify(loans), 200
+
+    except Exception as e:
+        print(f"CRITICAL ERROR in get_loans: {e}") 
+        return jsonify({"error": "Internal Server Error"}), 500
     
 ''' Main method '''
 if __name__ == '__main__':

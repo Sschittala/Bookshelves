@@ -67,7 +67,6 @@ export default function BookDetailPage({ params }: { params: Promise<{ bookId: s
 							</p>
 						</div>
 
-						{/* Hold Button: Top Right, only if NO copies are available */}
 						{!hasAvailableCopies && session?.member_id && (
 							<SetHoldButton book_id={bookDetail.book_id} member_id={session.member_id} />
 						)}
@@ -137,10 +136,8 @@ export default function BookDetailPage({ params }: { params: Promise<{ bookId: s
 												</span>
 											</div>
 
-											{/* Loan Button: Visible if Available (Not checked out) */}
 											{isAvailable && session?.member_id && (
 												<SetLoanButton
-													book_id={bookDetail.book_id}
 													copy_id={copy.copy_id}
 													member_id={session?.member_id}
 												/>
