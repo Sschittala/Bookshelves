@@ -147,6 +147,33 @@ def get_all_books(dbConn):
         })
     return books_list
 
+
+def get_book(dbConn, book_id):
+    sql = """
+        SELECT b.book_id, b.title, b.genre, b.publication_year,
+               a.author_id, a.author_name AS author_name
+        FROM books b
+        LEFT JOIN book_authors ba ON b.book_id = ba.book_id
+        LEFT JOIN authors a ON ba.author_id = a.author_id
+        WHERE b.book_id = ?
+        ORDER BY b.title
+    """
+    res = select_n_rows(dbConn, sql, (book_id,))
+    if not res:
+        return
+
+    row = res[0]
+
+    return {
+        "book_id": [0],
+        "title": row[1],
+        "genre": row[2],
+        "publication_year": row[3],
+        "author_id": row[4],
+        "author_name": row[5]
+    }
+
+
 # Create book and its mapping to an author (author_id)
 def create_book(dbConn, title, genre, author_id, publication_year):
     # Insert into books and obtain the new book_id
@@ -365,10 +392,18 @@ def remove_hold_handler():
 def books_get_all_handler():
     """Read: Fetch all books with author info."""
     try:
-        books = get_all_books(dbConn)
-        if books is None:
-            return jsonify({"error": "Database error while fetching books."}), 500
-        return jsonify(books), 200
+        if 'book_id' not in request.args:
+            books = get_all_books(dbConn)
+            if books is None:
+                return jsonify({"error": "Database error while fetching books."}), 500
+            return jsonify(books), 200
+        else:
+            book_id = request.args.get('book_id')
+            book = get_book(dbConn, book_id)
+            if book is None:
+                return jsonify({"error": "Database error while fetching book."}), 500
+            return jsonify(book), 200
+
     except Exception as e:
         print(f"Error fetching books: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500
