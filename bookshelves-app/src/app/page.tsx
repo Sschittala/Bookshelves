@@ -9,9 +9,9 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "../components/ui/carousel";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
-import { Button } from "../components/ui/button";
+} from "@/components/ui/carousel";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Book, getBooks } from "@/data/book-data";
 
@@ -80,33 +80,39 @@ export default function Home() {
                     key={book.book_id}
                     className="pl-4 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
                   >
-                    <div className="group">
-                      <Card className="border-zinc-900 bg-zinc-900/50 overflow-hidden hover:border-zinc-700 transition-colors duration-200 h-[300px] flex flex-col rounded-md">
-                        <div className="h-40 w-full bg-zinc-700 p-4 flex items-end">
-                          <span className="font-semibold text-md leading-tight text-white/90">
-                            {book.title}
-                          </span>
-                        </div>
+                    <div className="group h-full">
+                      <Link href={`/book/${book.book_id}`} className="block h-full">
+                        <Card className="border-zinc-900 bg-zinc-900/50 overflow-hidden hover:border-zinc-700 transition-colors duration-200 h-[300px] flex flex-col rounded-md cursor-pointer">
+                          <div className="h-40 w-full bg-zinc-700 p-4 flex items-end">
+                            <span className="font-semibold text-md leading-tight text-white/90">
+                              {book.title}
+                            </span>
+                          </div>
 
-                        <CardContent className="p-4 flex-1 bg-zinc-950">
-                          <p className="text-sm text-zinc-500 font-medium">
-                            {book.author_name}
-                          </p>
-                        </CardContent>
+                          <CardContent className="p-4 flex-1 bg-zinc-950">
+                            <p className="text-sm text-zinc-500 font-medium">
+                              {book.author_name}
+                            </p>
+                          </CardContent>
 
-                        <CardFooter className="p-4 pt-0 bg-zinc-950 flex justify-between items-center border-t border-zinc-900/50">
-                          <span className="text-xs text-zinc-600 uppercase tracking-wider font-bold">
-                            {book.genre}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-zinc-600 hover:text-zinc-300"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </CardFooter>
-                      </Card>
+                          <CardFooter className="p-4 pt-0 bg-zinc-950 flex justify-between items-center border-t border-zinc-900/50">
+                            <span className="text-xs text-zinc-600 uppercase tracking-wider font-bold">
+                              {book.genre}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-zinc-600 hover:text-zinc-300"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      </Link>
                     </div>
                   </CarouselItem>
                 ))}
@@ -120,3 +126,4 @@ export default function Home() {
     </main>
   );
 }
+

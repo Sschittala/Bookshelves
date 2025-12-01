@@ -159,19 +159,19 @@ def get_book(dbConn, book_id):
         ORDER BY b.title
     """
     res = select_n_rows(dbConn, sql, (book_id,))
-    books_list = []
     if not res:
-        return []
-    for row in res:
-        books_list.append({
-            "book_id": row[0],
-            "title": row[1],
-            "genre": row[2],
-            "publication_year": row[3],
-            "author_id": row[4],
-            "author_name": row[5]
-        })
-    return books_list
+        return
+
+    row = res[0]
+
+    return {
+        "book_id": [0],
+        "title": row[1],
+        "genre": row[2],
+        "publication_year": row[3],
+        "author_id": row[4],
+        "author_name": row[5]
+    }
 
 
 # Create book and its mapping to an author (author_id)
@@ -388,22 +388,22 @@ def remove_hold_handler():
 
 # --- Book Management Routes (CRUD) ---
 
-@app.route('/api/books', methods=['POST'])
+@app.route('/api/books', methods=['GET'])
 def books_get_all_handler():
     """Read: Fetch all books with author info."""
     try:
-        data = request.get_json() or {}
-        if 'book_id' not in data:
+        if 'book_id' not in request.args:
             books = get_all_books(dbConn)
             if books is None:
                 return jsonify({"error": "Database error while fetching books."}), 500
+            return jsonify(books), 200
         else:
-            book_id = data.get('book_id')
-            books = get_book(dbConn, book_id)
-            if books is None:
+            book_id = request.args.get('book_id')
+            book = get_book(dbConn, book_id)
+            if book is None:
                 return jsonify({"error": "Database error while fetching book."}), 500
+            return jsonify(book), 200
 
-        return jsonify(books), 200
     except Exception as e:
         print(f"Error fetching books: {e}")
         return jsonify({"error": "An unexpected error occurred."}), 500

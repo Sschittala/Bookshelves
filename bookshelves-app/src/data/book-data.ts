@@ -17,22 +17,18 @@ export interface BookPayload {
 }
 
 export async function getBook(book_id: string): Promise<Book> {
-	const response = await fetch('/api/books', {
-		method: 'POST',
+	const response = await fetch(`/api/books?book_id=${book_id}`, {
+		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			book_id
-		})
-	});
+	})
 	return handleResponse<Book>(response);
 }
 
 
 export async function getBooks(): Promise<Book[]> {
 	const response = await fetch('/api/books', {
-		method: 'POST',
+		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({})
 	});
 	return handleResponse<Book[]>(response);
 }
