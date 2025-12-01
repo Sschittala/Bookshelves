@@ -36,13 +36,13 @@ export default function Home() {
         const url = searchQuery
           ? `/api/books/search?q=${encodeURIComponent(searchQuery)}`
           : `/api/books/search`;
-        
+
         const response = await fetch(url);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         setBooks(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -52,7 +52,7 @@ export default function Home() {
         setLoading(false);
       }
     }
-    
+
     fetchBooks();
   }, [searchQuery]);
 
@@ -79,8 +79,8 @@ export default function Home() {
               Accessing {books.length} titles across {genres.length} categories.
             </p>
           </div>
-          
-          <Link href="/add-book">
+
+          <Link href="/create/book">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
               <Plus className="w-5 h-5 mr-2" />
               Add New Book

@@ -1,9 +1,8 @@
 'use client';
 
 import Link from "next/link";
-import { Book, Search, LogOut } from "lucide-react";
+import { Book, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useSession } from "@/contexts/SessionProvider";
 import { Suspense } from "react";
 import { Searchbar } from "@/components/searchbar/searchbar";
@@ -22,11 +21,11 @@ export function Navbar() {
 			</div>
 
 			{/* Center Search */}
-            <div className="hidden md:flex flex-1 max-w-md mx-6">
-                <Suspense fallback={<div className="w-full h-9 bg-zinc-900 rounded-md animate-pulse" />}>
-                    <Searchbar />
-                </Suspense>
-            </div>
+			<div className="hidden md:flex flex-1 max-w-md mx-6">
+				<Suspense fallback={<div className="w-full h-9 bg-zinc-900 rounded-md animate-pulse" />}>
+					<Searchbar />
+				</Suspense>
+			</div>
 
 			{/* Actions */}
 			<div className="flex items-center gap-2">

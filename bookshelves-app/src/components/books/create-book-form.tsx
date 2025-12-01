@@ -11,9 +11,9 @@ export default function AddBookForm() {
     authors: [''],
     copies: [{ condition: 'new' }]
   });
-  
+
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitStatus, setSubmitStatus] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const genres = [
@@ -130,7 +130,7 @@ export default function AddBookForm() {
       }
 
       const result = await response.json();
-      
+
       setSubmitStatus({
         type: 'success',
         message: `Book "${formData.title}" added successfully with ${formData.copies.length} cop${formData.copies.length === 1 ? 'y' : 'ies'}!`
@@ -168,19 +168,17 @@ export default function AddBookForm() {
 
           <div className="px-6 py-8 space-y-6">
             {submitStatus && (
-              <div className={`p-4 rounded-lg flex items-start space-x-3 ${
-                submitStatus.type === 'success' 
-                  ? 'bg-green-50 border border-green-200' 
-                  : 'bg-red-50 border border-red-200'
-              }`}>
+              <div className={`p-4 rounded-lg flex items-start space-x-3 ${submitStatus.type === 'success'
+                ? 'bg-green-50 border border-green-200'
+                : 'bg-red-50 border border-red-200'
+                }`}>
                 {submitStatus.type === 'success' ? (
                   <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                 ) : (
                   <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                 )}
-                <p className={`text-sm ${
-                  submitStatus.type === 'success' ? 'text-green-800' : 'text-red-800'
-                }`}>
+                <p className={`text-sm ${submitStatus.type === 'success' ? 'text-green-800' : 'text-red-800'
+                  }`}>
                   {submitStatus.message}
                 </p>
               </div>
@@ -196,9 +194,8 @@ export default function AddBookForm() {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 placeholder="Enter book title"
               />
               {errors.title && (
@@ -216,9 +213,8 @@ export default function AddBookForm() {
                   name="genre"
                   value={formData.genre}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.genre ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.genre ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 >
                   <option value="">Select a genre</option>
                   {genres.map(genre => (
@@ -240,9 +236,8 @@ export default function AddBookForm() {
                   name="publicationYear"
                   value={formData.publicationYear}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.publicationYear ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.publicationYear ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="2024"
                   min="1000"
                   max={new Date().getFullYear() + 1}
