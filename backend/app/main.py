@@ -200,12 +200,20 @@ def get_book(dbConn, book_id):
         "author_name": row[5],
         "copies": copies_list
     }
-
+def generate_unique_book_id(dbConn):
+    while True:
+        # Generate a number between 100000 (inclusive) and 999999 (inclusive)
+        new_id = randint(100000, 999999)
+        sql = "SELECT book_id FROM books WHERE book_id = ?"
+        res = select_one_row(dbConn, sql, parameters=(new_id,))
+        if not res:
+            return new_id # ID is unique
 def create_book(dbConn, title, genre, publication_year, authors, copies):
         cursor = dbConn.cursor()
+        book_id = generate_unique_book_id(dbConn)
         cursor.execute(
-            "INSERT INTO books (title, genre, publication_year) VALUES (?, ?, ?)",
-            (title, genre, publication_year),
+            "INSERT INTO books (book_id, title, genre, publication_year) VALUES (?, ?, ?, ?)",
+            (book_id, title, genre, publication_year),
         )
         book_id = cursor.lastrowid
         for author_name in authors:

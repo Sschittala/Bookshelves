@@ -41,7 +41,7 @@ CREATE TABLE book_authors (
 
 -- book_copies
 CREATE TABLE book_copies (
-    copy_id   INTEGER PRIMARY KEY,
+    copy_id   INTEGER PRIMARY KEY AUTOINCREMENT,
     book_id   INTEGER NOT NULL,
     condition TEXT,
     FOREIGN KEY (book_id) REFERENCES books(book_id)
