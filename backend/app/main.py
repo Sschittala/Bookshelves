@@ -163,17 +163,32 @@ def get_book(dbConn, book_id):
 
     row = res[0]
     sql_copies = """
-        SELECT copy_id, condition 
-        FROM book_copies 
-        WHERE book_id = ?
+        SELECT bc.copy_id, bc.condition, 
+                l.loan_id, l.member_id, l.due_date, l.start_date, l.end_date, l.returned_at
+        FROM book_copies bc
+        LEFT JOIN loans l ON bc.copy_id = l.copy_id AND l.returned_at IS NULL
+        WHERE bc.book_id = ?
     """
     res_copies = select_n_rows(dbConn, sql_copies, (book_id,))
+
     copies_list = []
     if res_copies:
         for copy in res_copies:
+            loan_data = None
+            if copy[2] is not None:
+                loan_data = {
+                   "loan_id": copy[2],
+                    "member_id": copy[3],
+                    "due_date": copy[4],
+                    "start_date": copy[5],
+                    "end_date": copy[6],
+                    "returned_at": copy[7]
+                }
+
             copies_list.append({
                 "copy_id": copy[0],
-                "condition": copy[1]
+                "condition": copy[1],
+                "loan": loan_data
             })
 
     return {
