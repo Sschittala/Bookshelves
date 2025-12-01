@@ -197,6 +197,35 @@ def delete_book(dbConn, book_id):
     dbConn.commit()
     return True
 
+# Adds a loan once a user rents a book
+def add_loans(dbConn, member_id, copy_id):
+    sql = """
+        INSERT INTO loans(member_id, copy_id)
+        VALUES (?, ?)
+    """
+    perform_action(dbConn, sql, (member_id, copy_id))
+    dbConn.commit()
+    return loan_id
+
+# Removes a loan once a user returns a book
+def remove_loans(dbConn, loan_id):
+    sql = """
+        DELETE FROM loans WHERE loan_id = ?
+    """
+    perform_action(dbConn, sql, (loan_id,))
+    dbConn.commit()
+    return loan_id
+
+# Returns list of loans for a given member
+def get_loans_for_mem(dbConn, member_id):
+    sql = """
+        SELECT *
+        FROM loans
+        WHERE member_id = ?
+    """
+    res = select_n_rows(dbConn, sql, (member_id,))
+    return res
+
 # Returns list of authors
 def get_all_authors(dbConn):
     sql = """
@@ -404,6 +433,31 @@ def books_search_handler():
             return jsonify({"error": "Database error while searching books."}), 500
         return jsonify(books), 200
 
+@app.route("/api/loans/add_loan", methods=['POST'])
+def add_loan_handler():
+    member_id = request.args.get(member_id)
+    copy_id = request.args.get(copy_id)
+    if not member_id or not copy_id:
+        return jsonify({"error": "member_id and copy_id required"}), 400
+    loan_id = add_loans(dbConn, member_id, copy_id)
+    return jsonify({"loan_id": loan_id}), 201
+
+@app.route("/api/loans/remove_loan", methods=['POST'])
+def remove_loan_handler():
+    loan_id = request.args.get(loan_id)
+    if not loan_id:
+        return jsonify({"error": "loan_id required"}), 400
+    remove_loans(dbConn, loan_id)
+    return jsonify({"ok": True}), 200
+
+@app.route("/api/loans/get_loans", methods=['GET'])
+def get_loans_handler():
+    member_id = request.args.get('member_id')
+    if not member_id:
+        return jsonify({"error": "member_id required"}), 400
+    loans = get_loans_for_mem(dbConn, member_id)
+    return jsonify(loans), 200
+    
 ''' Main method '''
 if __name__ == '__main__':
     app.run(debug=True)
