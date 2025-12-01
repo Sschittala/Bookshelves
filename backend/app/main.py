@@ -149,30 +149,42 @@ def get_all_books(dbConn):
 
 
 def get_book(dbConn, book_id):
-    sql = """
+    sql_book = """
         SELECT b.book_id, b.title, b.genre, b.publication_year,
                a.author_id, a.author_name AS author_name
         FROM books b
         LEFT JOIN book_authors ba ON b.book_id = ba.book_id
         LEFT JOIN authors a ON ba.author_id = a.author_id
         WHERE b.book_id = ?
-        ORDER BY b.title
     """
-    res = select_n_rows(dbConn, sql, (book_id,))
+    res = select_n_rows(dbConn, sql_book, (book_id,))
     if not res:
-        return
+        return None
 
     row = res[0]
+    sql_copies = """
+        SELECT copy_id, condition 
+        FROM book_copies 
+        WHERE book_id = ?
+    """
+    res_copies = select_n_rows(dbConn, sql_copies, (book_id,))
+    copies_list = []
+    if res_copies:
+        for copy in res_copies:
+            copies_list.append({
+                "copy_id": copy[0],
+                "condition": copy[1]
+            })
 
     return {
-        "book_id": [0],
+        "book_id": row[0],
         "title": row[1],
         "genre": row[2],
         "publication_year": row[3],
         "author_id": row[4],
-        "author_name": row[5]
+        "author_name": row[5],
+        "copies": copies_list
     }
-
 
 def create_book(dbConn, title, genre, publication_year, authors, copies):
         cursor = dbConn.cursor()

@@ -1,5 +1,10 @@
 import { handleResponse } from "@/data/utils"
 
+export interface Copy {
+	copy_id: number,
+	condition: string
+}
+
 export interface Book {
 	book_id: number;
 	title: string;
@@ -7,6 +12,7 @@ export interface Book {
 	publication_year: number;
 	author_id: number;
 	author_name?: string;
+	copies: Copy[]
 }
 
 export interface BookPayload {
