@@ -22,10 +22,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchAllBooks() {
       const books: Book[] = await getBooks();
-
-      console.log(books)
       setBooks(books);
-
       setLoading(false);
     }
     fetchAllBooks();
