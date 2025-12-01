@@ -1,7 +1,8 @@
 "use client";
 
 import { Separator } from "@radix-ui/react-separator";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
+import Link from "next/link";
 import {
   Carousel,
   CarouselContent,
@@ -71,11 +72,20 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
       <div className="container mx-auto py-10 px-4 md:px-6 space-y-12">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Public Archive</h1>
-          <p className="text-zinc-500">
-            Accessing {books.length} titles across {genres.length} categories.
-          </p>
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Public Archive</h1>
+            <p className="text-zinc-500">
+              Accessing {books.length} titles across {genres.length} categories.
+            </p>
+          </div>
+          
+          <Link href="/add-book">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+              <Plus className="w-5 h-5 mr-2" />
+              Add New Book
+            </Button>
+          </Link>
         </div>
 
         {genres.map((genre) => (

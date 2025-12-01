@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/shanmukhchebrolu/Documents/Shanmukh's folder/Classes/CS 480/Final_project/Bookshelves/backend/env/bin/python3.12" "$0" "$@"
-' '''
+#!/Users/dakshpatel/Downloads/Bookshelves/backend/env/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
