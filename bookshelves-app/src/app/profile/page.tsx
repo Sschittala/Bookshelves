@@ -5,6 +5,7 @@ import { getHolds, Hold } from "@/data/hold-data";
 import { getLoans, Loan } from "@/data/loan-data";
 import { useEffect, useState } from "react"
 import { User, BookMarked, Clock, CheckCircle, Bell, BookOpen, Calendar, AlertTriangle } from "lucide-react";
+import ReturnLoanButton from "@/components/books/return-loan-button";
 
 export default function ProfilePage() {
   const { session } = useSession();
@@ -103,8 +104,6 @@ export default function ProfilePage() {
                 {activeLoans.map((loan) => {
                   const dueDate = new Date(loan.due_date);
                   const isOverdue = dueDate < new Date();
-                  console.log(loan)
-
                   return (
                     <div key={loan.loan_id} className={`border rounded-lg p-6 flex items-center justify-between ${isOverdue ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200'}`}>
                       <div>
@@ -118,10 +117,11 @@ export default function ProfilePage() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex flex-col items-center gap-4">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isOverdue ? 'bg-red-200 text-red-800' : 'bg-green-100 text-green-800'}`}>
                           {isOverdue ? 'Overdue' : 'Active'}
                         </span>
+                        <ReturnLoanButton loan_id={loan.loan_id} />
                       </div>
                     </div>
                   );
