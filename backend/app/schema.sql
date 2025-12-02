@@ -26,7 +26,7 @@ CREATE TABLE books (
 
 -- authors
 CREATE TABLE authors (
-    author_id   INTEGER PRIMARY KEY,
+    author_id   INTEGER PRIMARY KEY AUTOINCREMENT,
     author_name TEXT NOT NULL
 );
 
