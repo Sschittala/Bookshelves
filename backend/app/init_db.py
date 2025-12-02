@@ -222,7 +222,6 @@ cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES
                (?, 'Insurgent', 'Science Fiction', 2012)
                """, (book_id_insurgent_sf,))
-book_id_insurgent_sf = cursor.lastrowid
 
 cursor.execute("""Insert Into book_authors(book_id, author_id) VALUES (?, ?)""",
                (book_id_insurgent_sf, author_id_roth)
