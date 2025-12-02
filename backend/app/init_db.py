@@ -19,7 +19,6 @@ cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES
                (?, 'The Outsider', 'Horror', 2018)
                """, (book_id_outsider,))
-book_id_outsider = cursor.lastrowid
 cursor.execute("""Insert Into authors(author_name)
                VALUES ('Stephen King')""")
 
@@ -50,7 +49,6 @@ book_id_exorcist = generate_random_id()
 cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES (?, 'The Exorcist', 'Horror', 1971)
                """, (book_id_exorcist,))
-book_id_exorcist = cursor.lastrowid
 cursor.execute("""Insert Into authors(author_name)
                VALUES ('William Peter Blatty')""")
 author_id_blatty = cursor.lastrowid
@@ -67,7 +65,6 @@ book_id_villa = generate_random_id()
 cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES (?, 'The Villa, Once Beloved', 'Horror', 2025)
                """, (book_id_villa,))
-book_id_villa = cursor.lastrowid
 cursor.execute("""Insert Into authors(author_name)
                VALUES ('Victor Manibo')""")
 author_id_manibo = cursor.lastrowid
@@ -99,7 +96,6 @@ cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES
                (?, 'Divergent', 'Action', 2011)
                """, (book_id_divergent,))
-book_id_divergent = cursor.lastrowid
 cursor.execute("""Insert Into authors(author_name)
                VALUES ('Veronica Roth')""")
 author_id_roth = cursor.lastrowid
@@ -115,7 +111,6 @@ cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
                VALUES
                (?, 'Red Queen', 'Action', 2015)
                """, (book_id_queen,))
-book_id_queen = cursor.lastrowid
 cursor.execute("""Insert Into authors(author_name)
                VALUES ('Victoria Aveyard')""")
 author_id_aveyard = cursor.lastrowid
@@ -360,7 +355,7 @@ author_id_mcf = cursor.lastrowid
 cursor.execute("""Insert Into book_authors(book_id, author_id) VALUES (?, ?)""",
                (book_id_ward, author_id_mcf))
 cursor.execute("""Insert Into book_copies(book_id, condition) VALUES (?, ?)""",
-               (book_id_ward, "poor"))
+               (book_id_ward, "Poor"))
 copy_id_ward = cursor.lastrowid
 
 book_id_twenty = generate_random_id()
@@ -500,7 +495,7 @@ cursor.execute("""Insert Into books(book_id, title, genre, publication_year)
 book_id_insurgent = cursor.lastrowid
 
 cursor.execute("""Insert Into book_authors(book_id, author_id) VALUES (?, ?)""",
-               (book_id_queen, author_id_roth)
+               (book_id_insurgent, author_id_roth)
                )
 cursor.execute("""Insert Into book_copies(book_id, condition) VALUES (?, ?)""",
                (book_id_insurgent, "New"))
